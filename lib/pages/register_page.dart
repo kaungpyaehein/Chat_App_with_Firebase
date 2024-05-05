@@ -1,3 +1,5 @@
+import 'package:chat_app/network/data_agents/chat_app_data_agent.dart';
+import 'package:chat_app/network/data_agents/chat_app_data_agent_impl.dart';
 import 'package:chat_app/pages/main_page.dart';
 import 'package:chat_app/utils/colors.dart';
 import 'package:chat_app/utils/route/route_extensions.dart';
@@ -96,9 +98,23 @@ class RegisterPage extends StatelessWidget {
                 PrimaryButton(
                     label: kTextContinue,
                     onTap: () {
-                      context.push(const MainPage());
+                      // context.push(const MainPage());
                       if (registerFormKey.currentState?.validate() ?? false) {
                         debugPrint("Validating");
+                        ChatAppDataAgent chatAppDataAgent =
+                            ChatAppDataAgentImpl();
+                        try {
+                          chatAppDataAgent
+                              .register(
+                                  emailTextEditingController.text,
+                                  passwordTextEditingController.text,
+                                  nameTextEditingController.text)
+                              .then((value) {
+                            debugPrint(value?.id.toString() ?? "Null");
+                          });
+                        } catch (e) {
+                          debugPrint(e.toString());
+                        }
                       }
                     }),
                 const Gap(kMarginMedium3),

@@ -1,3 +1,4 @@
+import 'package:chat_app/network/api/firebase_api_impl.dart';
 import 'package:chat_app/pages/qr_scanner_page.dart';
 import 'package:chat_app/utils/route/route_extensions.dart';
 import 'package:chat_app/utils/strings.dart';
@@ -7,11 +8,29 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pretty_qr_code/pretty_qr_code.dart';
 
+import '../network/api/firebase_api.dart';
 import '../utils/colors.dart';
 import '../utils/images.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
+
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  @override
+  void initState() {
+    FirebaseApi firebaseApi = FirebaseApiImpl();
+    firebaseApi
+        .addContactWithUid(
+            "4pV0ovJtGJQirmUkStzDgmOrO112", "cU5Q3NX6KHgQIOOxKp713eKwRE83")
+        .then((value) {
+      print(value.toString());
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {

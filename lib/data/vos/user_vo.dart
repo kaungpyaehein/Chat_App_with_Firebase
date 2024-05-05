@@ -1,9 +1,12 @@
 import 'package:hive_flutter/adapters.dart';
 import 'package:json_annotation/json_annotation.dart';
-part 'user_vo.g.dart';
-@JsonSerializable()
-class UserVO {
 
+import '../../persistence/hive_constants.dart';
+part 'user_vo.g.dart';
+
+@JsonSerializable()
+@HiveType(typeId: kHiveTypeUserVO, adapterName: kAdapterNameUserVO)
+class UserVO {
   @HiveField(0)
   @JsonKey(name: "name")
   String? name;
@@ -24,12 +27,17 @@ class UserVO {
   @JsonKey(name: "contacts")
   List<UserVO>? contacts;
 
+  @HiveField(5)
+  @JsonKey(name: "profile_image")
+  String? profileImage;
+
   UserVO({
     this.name,
     this.email,
     this.id,
     this.fcmToken,
     this.contacts,
+    this.profileImage,
   });
 
   //from json
@@ -37,6 +45,4 @@ class UserVO {
 
   //to json
   Map<String, dynamic> toJson() => _$UserVOToJson(this);
-
-
 }
