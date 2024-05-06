@@ -40,6 +40,25 @@ class UserVO {
     this.profileImage,
   });
 
+  UserVO copyWith({
+    String? name,
+    String? email,
+    String? id,
+    String? fcmToken,
+    List<UserVO>? contacts,
+    String? profileImage,
+  }) {
+    return UserVO(
+      name: name ?? this.name,
+      email: email ?? this.email,
+      id: id ?? this.id,
+      fcmToken: fcmToken ?? this.fcmToken,
+      contacts: contacts ?? this.contacts,
+      profileImage: profileImage ?? this.profileImage,
+    );
+  }
+
+
   //from json
   factory UserVO.fromJson(Map<String, dynamic> json) => _$UserVOFromJson(json);
 

@@ -1,3 +1,6 @@
+import 'package:chat_app/data/vos/user_vo.dart';
+import 'package:chat_app/network/api/firebase_api.dart';
+import 'package:chat_app/network/api/firebase_api_impl.dart';
 import 'package:flutter/material.dart';
 
 import '../utils/colors.dart';
@@ -19,25 +22,40 @@ class ContactListPage extends StatelessWidget {
   }
 }
 
-class ContactListView extends StatelessWidget {
+class ContactListView extends StatefulWidget {
   const ContactListView({
     super.key,
   });
 
   @override
+  State<ContactListView> createState() => _ContactListViewState();
+}
+
+class _ContactListViewState extends State<ContactListView> {
+  FirebaseApi firebaseApi = FirebaseApiImpl();
+
+  @override
   Widget build(BuildContext context) {
-    return ListView.separated(
-      padding: const EdgeInsets.symmetric(horizontal: kMarginLarge),
-      separatorBuilder: (context, index) {
-        return const Divider(
-          color: kDividerColor,
-        );
-      },
-      itemCount: 5,
-      itemBuilder: (context, index) {
-        return const ContactListItemView();
-      },
-    );
+    return StreamBuilder<List<UserVO>>(
+        stream: firebaseApi.getContactsStream("4pV0ovJtGJQirmUkStzDgmOrO112"),
+        builder: (context, snapshot) {
+          if (snapshot.hasData && snapshot.data != null) {
+            debugPrint(snapshot.data.toString());
+            return ListView.separated(
+              padding: const EdgeInsets.symmetric(horizontal: kMarginLarge),
+              separatorBuilder: (context, index) {
+                return const Divider(
+                  color: kDividerColor,
+                );
+              },
+              itemCount: 5,
+              itemBuilder: (context, index) {
+                return const ContactListItemView();
+              },
+            );
+          }
+          return const SizedBox.shrink();
+        });
   }
 }
 

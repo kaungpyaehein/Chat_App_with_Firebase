@@ -18,6 +18,13 @@ class UserDao {
     await getUserBox().put(kBoxKeyUser, userVO);
   }
 
+  void clearUserData() async {
+    await getUserBox().clear();
+  }
+
+  Stream watchUserBox() {
+    return getUserBox().watch();
+  }
   // String getToken() {
   //   return getUserBox().get(kBoxKeyUser)?.getToken().toString() ?? "";
   // }

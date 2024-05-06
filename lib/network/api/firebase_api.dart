@@ -16,9 +16,11 @@ abstract class FirebaseApi {
     UserVO userVO,
   );
 
-  Future<UserVO?> getUserDatFromFirestore(
+  Future<UserVO> getUserDataFromFirestore(
     String userId,
   );
 
-  Future<bool> addContactWithUid(String senderUid, String receiverUid);
+  Future<bool> exchangeContactsWithUids(String senderUid, String receiverUid);
+
+  Stream<List<UserVO>> getContactsStream(String uid);
 }

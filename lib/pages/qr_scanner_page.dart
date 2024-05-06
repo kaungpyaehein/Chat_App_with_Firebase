@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'package:chat_app/data/models/chat_app_model.dart';
 import 'package:chat_app/utils/utils_functions.dart';
 import 'package:chat_app/widgets/qr_scanner_overlay.dart';
 import 'package:flutter/material.dart';
@@ -47,6 +48,15 @@ class QRScannerView extends StatelessWidget {
           debugPrint("Barcode found ! ${barcode.rawValue}");
         }
         if (image != null) {
+          ChatAppModel model = ChatAppModel();
+          final currentUser = model.getUserDataFromDatabase();
+
+          model
+              .exchangeContactsUsingUid(
+                  currentUser!.id!, barcodes.first.rawValue ?? "")
+              .then((value) {
+
+          });
           showDialog(
             context: context,
             builder: (context) {

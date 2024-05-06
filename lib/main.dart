@@ -1,5 +1,10 @@
+import 'package:chat_app/data/models/chat_app_model.dart';
+import 'package:chat_app/pages/auth_page.dart';
+import 'package:chat_app/pages/main_page.dart';
 import 'package:chat_app/pages/splash_page.dart';
 import 'package:chat_app/persistence/hive_constants.dart';
+import 'package:chat_app/persistence/user_dao.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:hive_flutter/adapters.dart';
@@ -30,14 +35,13 @@ class ChatApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        fontFamily: "Mulish",
-        appBarTheme: const AppBarTheme(
-          surfaceTintColor: Colors.white,
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          fontFamily: "Mulish",
+          appBarTheme: const AppBarTheme(
+            surfaceTintColor: Colors.white,
+          ),
         ),
-      ),
-      home: const SplashPage(),
-    );
+        home: const AuthPage());
   }
 }

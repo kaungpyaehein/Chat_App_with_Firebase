@@ -19,20 +19,20 @@ class ChatAppDataAgentImpl implements ChatAppDataAgent {
   ChatAppDataAgentImpl._internal();
 
   @override
-  Future<UserVO?> login(String email, String password) {
+  Future<UserVO> login(String email, String password) {
     return firebaseApi.login(email, password).then((uid) async {
       if (uid != null) {
         /// GET DATA FROM FIRESTORE
-        return await firebaseApi.getUserDatFromFirestore(uid);
+        return await getUserDataAndContactsFromFirestore(uid);
       }
-      return null;
+      throw _createException("Login Failed");
     }).catchError((error) {
       throw _createException(error);
     });
   }
 
   @override
-  Future<UserVO?> register(String email, String password, String name) async {
+  Future<UserVO> register(String email, String password, String name) async {
     try {
       final uid = await firebaseApi.registerAccount(email, password, name);
       if (uid != null) {
@@ -50,10 +50,41 @@ class ChatAppDataAgentImpl implements ChatAppDataAgent {
           return userVO; // Return userVO if Firestore operation is successful
         }
       }
-      return null;
+      throw _createException("Failed to register new account.");
     } catch (error) {
       throw _createException(error);
     }
+  }
+
+  @override
+  Stream<List<UserVO>> getContactsDataStream(String uid) {
+    return firebaseApi.getContactsStream(uid);
+  }
+
+  @override
+  Future exchangeContactsWithUids(String senderUid, String receiverUid) {
+    return firebaseApi
+        .exchangeContactsWithUids(senderUid, receiverUid)
+        .then((isSuccess) {
+      if (isSuccess) {
+      } else {
+        throw _createException("Failed to exchange contacts!");
+      }
+    }).catchError((error) {
+      throw _createException(error);
+    });
+  }
+
+  @override
+  Future<UserVO> getUserDataAndContactsFromFirestore(String uid) async {
+    List<UserVO> contacts = await getContactsDataStream(uid).first;
+    return firebaseApi.getUserDataFromFirestore(uid).then((user) {
+      return user.copyWith(
+        contacts: contacts,
+      );
+    }).catchError((error) {
+      throw _createException(error);
+    });
   }
 }
 

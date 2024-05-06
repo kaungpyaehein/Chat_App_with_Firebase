@@ -1,10 +1,14 @@
+import 'dart:async';
+
 import 'package:chat_app/data/vos/user_vo.dart';
 import 'package:chat_app/network/api/firebase_api.dart';
+import 'package:chat_app/network/api_constants.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FirebaseApiImpl implements FirebaseApi {
   var db = FirebaseFirestore.instance;
+
   @override
   Future<String?> login(String email, String password) async {
     try {
@@ -69,52 +73,71 @@ class FirebaseApiImpl implements FirebaseApi {
   }
 
   @override
-  Future<UserVO?> getUserDatFromFirestore(String userId) async {
-    return await db.collection("users").doc(userId).get().then(
+  Future<UserVO> getUserDataFromFirestore(String userId) async {
+    return await db.collection(kUserCollection).doc(userId).get().then(
       (DocumentSnapshot snapshot) {
-        return UserVO.fromJson(snapshot.data() as Map<String, dynamic>);
+        if (snapshot.data() != null) {
+          return UserVO.fromJson(snapshot.data() as Map<String, dynamic>);
+        }
+        throw Exception("Failed to get user data!");
       },
     );
   }
 
   //// Make this function more simpler
   @override
-  Future<bool> addContactWithUid(String senderUid, String receiverUid) async {
+  Future<bool> exchangeContactsWithUids(
+      String senderUid, String receiverUid) async {
     try {
       // Fetch sender and receiver snapshots concurrently
       List<DocumentSnapshot> snapshots = await Future.wait([
-        db.collection("users").doc(senderUid).get(),
-        db.collection("users").doc(receiverUid).get(),
+        db.collection(kUserCollection).doc(senderUid).get(),
+        db.collection(kUserCollection).doc(receiverUid).get(),
       ]);
 
-      // Extract sender and receiver data from snapshots
-      Map<String, dynamic> senderData =
-          snapshots[0].data() as Map<String, dynamic>;
-      Map<String, dynamic> receiverData =
-          snapshots[1].data() as Map<String, dynamic>;
+      if (snapshots[0].data() != null && snapshots[1].data() != null) {
+        // Extract sender and receiver data from snapshots
+        Map<String, dynamic> senderData =
+            snapshots[0].data() as Map<String, dynamic>;
+        Map<String, dynamic> receiverData =
+            snapshots[1].data() as Map<String, dynamic>;
 
-      // Execute set operations concurrently
-      await Future.wait([
-        db
-            .collection("users")
-            .doc(receiverUid)
-            .collection("contacts")
-            .doc(senderUid)
-            .set(senderData, SetOptions(merge: true)),
-        db
-            .collection("users")
-            .doc(senderUid)
-            .collection("contacts")
-            .doc(receiverUid)
-            .set(receiverData, SetOptions(merge: true)),
-      ]);
+        // Execute set operations concurrently
+        await Future.wait([
+          db
+              .collection(kUserCollection)
+              .doc(receiverUid)
+              .collection(kContactsCollection)
+              .doc(senderUid)
+              .set(senderData, SetOptions(merge: true)),
+          db
+              .collection(kUserCollection)
+              .doc(senderUid)
+              .collection(kContactsCollection)
+              .doc(receiverUid)
+              .set(receiverData, SetOptions(merge: true)),
+        ]);
 
-      // Return true if both operations succeed
-      return true;
+        // Return true if both operations succeed
+        return true;
+      }
+      return false;
     } catch (error) {
       // Handle any errors
       print("Error adding contact: $error");
       return false;
     }
+  }
+
+  @override
+  Stream<List<UserVO>> getContactsStream(String uid) {
+    return FirebaseFirestore.instance
+        .collection(kUserCollection)
+        .doc(uid)
+        .collection(kContactsCollection)
+        .snapshots()
+        .map((querySnapshot) => querySnapshot.docs
+            .map((doc) => UserVO.fromJson(doc.data()))
+            .toList());
   }
 }
