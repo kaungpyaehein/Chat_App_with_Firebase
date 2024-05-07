@@ -18,14 +18,17 @@ class QRScannerPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: buildDefaultAppBar(
-        kTextQRScanner,
-        true,
-      ),
+    return ChangeNotifierProvider(
+      create: (context) => UserInfoBloc(),
+      child: Scaffold(
+        appBar: buildDefaultAppBar(
+          kTextQRScanner,
+          true,
+        ),
 
-      /// QR SCANNER VIEW
-      body: const QRScannerView(),
+        /// QR SCANNER VIEW
+        body: const QRScannerView(),
+      ),
     );
   }
 }
