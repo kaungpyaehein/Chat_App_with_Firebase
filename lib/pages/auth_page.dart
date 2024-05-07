@@ -24,7 +24,9 @@ class _AuthPageState extends State<AuthPage> {
           if (snapshot.data == null) {
             return const SplashPage();
           }
-          return const MainPage();
+          return const MainPage(
+            selectedIndex: 1,
+          );
         } else {
           return const Scaffold(
             body: Center(

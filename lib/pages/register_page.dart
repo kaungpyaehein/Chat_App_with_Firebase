@@ -1,5 +1,4 @@
 import 'package:chat_app/bloc/auth_bloc.dart';
-import 'package:chat_app/data/models/chat_app_model.dart';
 import 'package:chat_app/utils/colors.dart';
 import 'package:chat_app/utils/route/route_extensions.dart';
 import 'package:chat_app/utils/strings.dart';
@@ -104,7 +103,7 @@ class RegisterPage extends StatelessWidget {
                   Selector<AuthBloc, UserVO?>(
                       selector: (context, bloc) => bloc.currentUser,
                       builder: (context, currentUser, child) {
-                        if (currentUser != null && currentUser.id!.isNotEmpty) {
+                        if (currentUser != null && currentUser.id.isNotEmpty) {
                           Future.delayed(const Duration(milliseconds: 500))
                               .then((value) {
                             context.pushReplacement(const AuthPage());

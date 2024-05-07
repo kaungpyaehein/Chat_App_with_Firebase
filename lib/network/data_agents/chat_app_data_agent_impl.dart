@@ -63,16 +63,19 @@ class ChatAppDataAgentImpl implements ChatAppDataAgent {
 
   @override
   Future exchangeContactsWithUids(String senderUid, String receiverUid) {
-    return firebaseApi
-        .exchangeContactsWithUids(senderUid, receiverUid)
-        .then((isSuccess) {
-      if (isSuccess) {
-      } else {
-        throw _createException("Failed to exchange contacts!");
-      }
-    }).catchError((error) {
-      throw _createException(error);
-    });
+    if (senderUid != receiverUid) {
+      return firebaseApi
+          .exchangeContactsWithUids(senderUid, receiverUid)
+          .then((isSuccess) {
+        if (isSuccess) {
+        } else {
+          throw _createException("Failed to exchange contacts!");
+        }
+      }).catchError((error) {
+        throw _createException(error);
+      });
+    }
+    throw _createException("Failed to exchange");
   }
 
   @override

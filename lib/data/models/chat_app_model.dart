@@ -35,8 +35,9 @@ class ChatAppModel {
   }
 
   /// Get Contact Stream
-  Stream<List<UserVO>> getContactsStream(String uid) {
-    return chatAppDataAgent.getContactsDataStream(uid);
+  Stream<List<UserVO>> getContactsStream() {
+    final String id = getUserDataFromDatabase()?.id ?? "";
+    return chatAppDataAgent.getContactsDataStream(id);
   }
 
   /// Get User data from hive

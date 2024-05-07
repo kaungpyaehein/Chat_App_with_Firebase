@@ -8,9 +8,11 @@ import 'dart:math';
 
 import 'package:image_picker/image_picker.dart';
 
-class ChatDetailsPage extends StatefulWidget {
-  const ChatDetailsPage({super.key});
+import '../data/vos/user_vo.dart';
 
+class ChatDetailsPage extends StatefulWidget {
+  const ChatDetailsPage({super.key, required this.user});
+  final UserVO user;
   @override
   State<ChatDetailsPage> createState() => _ChatDetailsPageState();
 }
@@ -71,7 +73,7 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: buildDefaultAppBar("KP", true),
+      appBar: buildDefaultAppBar(widget.user.name, true),
       body: Chat(
         theme: const DefaultChatTheme(
           primaryColor: kPrimaryColor,

@@ -9,7 +9,8 @@ import '../utils/colors.dart';
 import '../utils/dimensions.dart';
 
 class MainPage extends StatefulWidget {
-  const MainPage({super.key});
+  final int selectedIndex;
+  const MainPage({super.key, required this.selectedIndex});
 
   @override
   State<MainPage> createState() => _MainPageState();
@@ -17,11 +18,19 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   int currentIndex = 1;
+
   List<Widget> screenWidgets = [
     const ContactListPage(),
     const ChatListPage(),
     const ProfilePage()
   ];
+
+  @override
+  void initState() {
+    currentIndex = widget.selectedIndex;
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

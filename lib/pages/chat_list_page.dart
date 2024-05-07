@@ -6,6 +6,8 @@ import 'package:chat_app/utils/strings.dart';
 import 'package:chat_app/utils/utils_functions.dart';
 import 'package:flutter/material.dart';
 
+import '../data/vos/user_vo.dart';
+
 class ChatListPage extends StatelessWidget {
   const ChatListPage({super.key});
 
@@ -45,7 +47,9 @@ class ChatListItemView extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       onTap: () {
-        context.push(ChatDetailsPage());
+        context.push(ChatDetailsPage(
+          user: UserVO(name: "KP", email: "kp@gmail.com", id: "testing"),
+        ));
       },
       contentPadding: EdgeInsets.zero,
       leading: SizedBox(

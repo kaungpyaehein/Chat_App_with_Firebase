@@ -9,15 +9,15 @@ part 'user_vo.g.dart';
 class UserVO {
   @HiveField(0)
   @JsonKey(name: "name")
-  String? name;
+  String name;
 
   @HiveField(1)
   @JsonKey(name: "email")
-  String? email;
+  String email;
 
   @HiveField(2)
   @JsonKey(name: "id")
-  String? id;
+  String id;
 
   @HiveField(3)
   @JsonKey(name: "fcmToken")
@@ -30,15 +30,6 @@ class UserVO {
   @HiveField(5)
   @JsonKey(name: "profile_image")
   String? profileImage;
-
-  UserVO({
-    this.name,
-    this.email,
-    this.id,
-    this.fcmToken,
-    this.contacts,
-    this.profileImage,
-  });
 
   UserVO copyWith({
     String? name,
@@ -58,10 +49,28 @@ class UserVO {
     );
   }
 
+  String getInitialLetters() {
+    List<String> names = name.split(" ");
+    String initials = "";
+    for (int i = 0; i < names.length; i++) {
+      if (names[i].isNotEmpty) {
+        initials += names[i][0].toUpperCase();
+      }
+    }
+    return initials;
+  }
 
   //from json
   factory UserVO.fromJson(Map<String, dynamic> json) => _$UserVOFromJson(json);
 
   //to json
   Map<String, dynamic> toJson() => _$UserVOToJson(this);
+
+  UserVO(
+      {required this.name,
+      required this.email,
+      required this.id,
+      this.fcmToken,
+      this.contacts,
+      this.profileImage});
 }

@@ -83,13 +83,12 @@ class LoginPage extends StatelessWidget {
 
                     const Gap(kMarginLarge),
 
-
                     /// CONTINUE BUTTON
                     Selector<AuthBloc, UserVO?>(
                         selector: (context, bloc) => bloc.currentUser,
                         builder: (context, currentUser, child) {
                           if (currentUser != null &&
-                              currentUser.id!.isNotEmpty) {
+                              currentUser.id.isNotEmpty) {
                             Future.delayed(const Duration(milliseconds: 500))
                                 .then((value) {
                               context.pushReplacement(const AuthPage());
@@ -98,16 +97,29 @@ class LoginPage extends StatelessWidget {
                               child: CircularProgressIndicator(),
                             );
                           } else {
+                            /// Primary Button
                             return PrimaryButton(
                               label: kTextContinue,
                               onTap: () {
                                 if (loginFormKey.currentState?.validate() ??
                                     false) {
-                                  context.read<AuthBloc>().login(
-                                    emailTextEditingController.text.trim(),
-                                    passwordTextEditingController.text
-                                        .trim(),
-                                  );
+                                  context
+                                      .read<AuthBloc>()
+                                      .login(
+                                        emailTextEditingController.text.trim(),
+                                        passwordTextEditingController.text
+                                            .trim(),
+                                      )
+                                      .catchError((error) {
+                                    Fluttertoast.showToast(
+                                        msg: error.toString(),
+                                        toastLength: Toast.LENGTH_SHORT,
+                                        gravity: ToastGravity.BOTTOM,
+                                        timeInSecForIosWeb: 1,
+                                        backgroundColor: Colors.red,
+                                        textColor: Colors.white,
+                                        fontSize: 16.0);
+                                  });
                                 }
                               },
                             );

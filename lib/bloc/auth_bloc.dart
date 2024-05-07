@@ -9,7 +9,7 @@ class AuthBloc extends ChangeNotifier {
   UserVO? currentUser;
 
   AuthBloc() {
-    _model.getUserDataFromDatabase();
+    currentUser = _model.getUserDataFromDatabase();
   }
 
   Future<void> login(String email, String password) async {

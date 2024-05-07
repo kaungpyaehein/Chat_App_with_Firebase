@@ -17,9 +17,9 @@ class UserVOAdapter extends TypeAdapter<UserVO> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return UserVO(
-      name: fields[0] as String?,
-      email: fields[1] as String?,
-      id: fields[2] as String?,
+      name: fields[0] as String,
+      email: fields[1] as String,
+      id: fields[2] as String,
       fcmToken: fields[3] as String?,
       contacts: (fields[4] as List?)?.cast<UserVO>(),
       profileImage: fields[5] as String?,
@@ -60,9 +60,9 @@ class UserVOAdapter extends TypeAdapter<UserVO> {
 // **************************************************************************
 
 UserVO _$UserVOFromJson(Map<String, dynamic> json) => UserVO(
-      name: json['name'] as String?,
-      email: json['email'] as String?,
-      id: json['id'] as String?,
+      name: json['name'] as String,
+      email: json['email'] as String,
+      id: json['id'] as String,
       fcmToken: json['fcmToken'] as String?,
       contacts: (json['contacts'] as List<dynamic>?)
           ?.map((e) => UserVO.fromJson(e as Map<String, dynamic>))
