@@ -59,6 +59,8 @@ class _ContactListViewState extends State<ContactListView> {
               );
             },
           );
+        } else if (currentUser!.contacts!.isEmpty) {
+          return const Center(child: CircularProgressIndicator());
         }
         return const Center(
           child: Text(

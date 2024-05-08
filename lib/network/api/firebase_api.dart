@@ -1,3 +1,4 @@
+import '../../data/vos/message_vo.dart';
 import '../../data/vos/user_vo.dart';
 
 abstract class FirebaseApi {
@@ -23,4 +24,9 @@ abstract class FirebaseApi {
   Future<bool> exchangeContactsWithUids(String senderUid, String receiverUid);
 
   Stream<List<UserVO>> getContactsStream(String uid);
+
+  void sendMessage(MessageVO message, String senderId, String receiverId);
+
+  Stream<List<MessageVO>> getMessageStream(
+      String senderUid, String receiverUid);
 }

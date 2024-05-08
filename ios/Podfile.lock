@@ -8,6 +8,9 @@ PODS:
     - FirebaseAuth (~> 10.24.0)
   - Firebase/CoreOnly (10.24.0):
     - FirebaseCore (= 10.24.0)
+  - Firebase/Database (10.24.0):
+    - Firebase/CoreOnly
+    - FirebaseDatabase (~> 10.24.0)
   - Firebase/Firestore (10.24.0):
     - Firebase/CoreOnly
     - FirebaseFirestore (~> 10.24.0)
@@ -17,6 +20,10 @@ PODS:
     - Flutter
   - firebase_core (2.30.1):
     - Firebase/CoreOnly (= 10.24.0)
+    - Flutter
+  - firebase_database (10.5.4):
+    - Firebase/Database (= 10.24.0)
+    - firebase_core
     - Flutter
   - FirebaseAppCheckInterop (10.25.0)
   - FirebaseAuth (10.24.0):
@@ -34,6 +41,11 @@ PODS:
     - FirebaseCore (~> 10.0)
   - FirebaseCoreInternal (10.25.0):
     - "GoogleUtilities/NSData+zlib (~> 7.8)"
+  - FirebaseDatabase (10.24.0):
+    - FirebaseAppCheckInterop (~> 10.17)
+    - FirebaseCore (~> 10.0)
+    - FirebaseSharedSwift (~> 10.0)
+    - leveldb-library (~> 1.22)
   - FirebaseFirestore (10.24.0):
     - FirebaseFirestoreBinary (= 10.24.0)
   - FirebaseFirestoreAbseilBinary (1.2024011601.0)
@@ -154,6 +166,7 @@ DEPENDENCIES:
   - cloud_firestore (from `.symlinks/plugins/cloud_firestore/ios`)
   - firebase_auth (from `.symlinks/plugins/firebase_auth/ios`)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
+  - firebase_database (from `.symlinks/plugins/firebase_database/ios`)
   - FirebaseFirestore (from `https://github.com/invertase/firestore-ios-sdk-frameworks.git`, tag `10.24.0`)
   - Flutter (from `Flutter`)
   - fluttertoast (from `.symlinks/plugins/fluttertoast/ios`)
@@ -171,6 +184,7 @@ SPEC REPOS:
     - FirebaseCore
     - FirebaseCoreExtension
     - FirebaseCoreInternal
+    - FirebaseDatabase
     - FirebaseFirestoreAbseilBinary
     - FirebaseFirestoreBinary
     - FirebaseFirestoreGRPCBoringSSLBinary
@@ -201,6 +215,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/firebase_auth/ios"
   firebase_core:
     :path: ".symlinks/plugins/firebase_core/ios"
+  firebase_database:
+    :path: ".symlinks/plugins/firebase_database/ios"
   FirebaseFirestore:
     :git: https://github.com/invertase/firestore-ios-sdk-frameworks.git
     :tag: 10.24.0
@@ -229,11 +245,13 @@ SPEC CHECKSUMS:
   Firebase: 91fefd38712feb9186ea8996af6cbdef41473442
   firebase_auth: b782567cafd5cfd64debf54638a9f29b63abd7bf
   firebase_core: 7f1e1156934d0da3be260174812842df9420e4ab
+  firebase_database: bc70c451e6f510ec59c5690fdca67d8f46d6b2c6
   FirebaseAppCheckInterop: 5da5ce93e8797a215e3f677fb0654b74e736c8b8
   FirebaseAuth: 711d01cccefaf10035b3090a92956d0dd4f99088
   FirebaseCore: 11dc8a16dfb7c5e3c3f45ba0e191a33ac4f50894
   FirebaseCoreExtension: af5fd85e817ea9d19f9a2659a376cf9cf99f03c0
   FirebaseCoreInternal: 910a81992c33715fec9263ca7381d59ab3a750b7
+  FirebaseDatabase: 09752515c6abf792b6f61ca6d0354952a8c1feb9
   FirebaseFirestore: 455ba4bf3f0e1da88f77aaa76dc506d920396346
   FirebaseFirestoreAbseilBinary: bd0451946879e0e01327c8efc35896bb273009c4
   FirebaseFirestoreBinary: 7eccf62d9204bd1b8915bf4f30406f6b13a5f01a

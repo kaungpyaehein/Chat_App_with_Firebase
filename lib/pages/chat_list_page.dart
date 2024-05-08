@@ -1,15 +1,42 @@
+import 'package:chat_app/data/vos/message_vo.dart';
+import 'package:chat_app/network/api/firebase_api.dart';
+import 'package:chat_app/network/api/firebase_api_impl.dart';
 import 'package:chat_app/pages/chat_details_page.dart';
 import 'package:chat_app/utils/colors.dart';
 import 'package:chat_app/utils/dimensions.dart';
 import 'package:chat_app/utils/route/route_extensions.dart';
 import 'package:chat_app/utils/strings.dart';
 import 'package:chat_app/utils/utils_functions.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../data/vos/user_vo.dart';
 
-class ChatListPage extends StatelessWidget {
+class ChatListPage extends StatefulWidget {
   const ChatListPage({super.key});
+
+  @override
+  State<ChatListPage> createState() => _ChatListPageState();
+}
+
+class _ChatListPageState extends State<ChatListPage> {
+  FirebaseApi firebaseApi = FirebaseApiImpl();
+  @override
+  void initState() {
+    // firebaseApi.sendMessage(
+    //     MessageVO(
+    //         id: DateTime.now().millisecondsSinceEpoch.toString(),
+    //         text: "67890",
+    //         file: "",
+    //         senderName: "KP",
+    //         senderId: "12345",
+    //         type: "text"),
+    //     "67890",
+    //     "12345");
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -1,3 +1,7 @@
+import 'package:chat_app/data/models/chat_app_model.dart';
+import 'package:chat_app/data/vos/message_vo.dart';
+import 'package:chat_app/network/api/firebase_api.dart';
+import 'package:chat_app/network/api/firebase_api_impl.dart';
 import 'package:chat_app/utils/colors.dart';
 import 'package:chat_app/utils/utils_functions.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +11,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 
 import '../data/vos/user_vo.dart';
 
@@ -18,9 +23,18 @@ class ChatDetailsPage extends StatefulWidget {
 }
 
 class _ChatDetailsPageState extends State<ChatDetailsPage> {
+  ChatAppModel model = ChatAppModel();
+  late UserVO currentUser;
+  late types.User currentMessageSender;
+  @override
+  void initState() {
+    currentUser = model.getUserDataFromDatabase()!;
+    currentMessageSender = types.User(id: currentUser.id ?? "");
+    super.initState();
+  }
+
   final List<types.Message> _messages = [];
-  final _user = const types.User(id: '82091008-a484-4a89-ae75-a22bf8d6f3ac');
-  final _user2 = const types.User(id: "82091008-a484-4-eewrtewtwetewt");
+
   void _addMessage(types.Message message) {
     setState(() {
       _messages.insert(0, message);
@@ -28,14 +42,23 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
   }
 
   void _handleSendPressed(types.PartialText message) {
-    final textMessage = types.TextMessage(
-      author: message.text == "KP" ? _user2 : _user,
-      createdAt: DateTime.now().millisecondsSinceEpoch,
-      id: getRandString(10),
-      text: message.text,
-    );
-
-    _addMessage(textMessage);
+    // final textMessage = types.TextMessage(
+    //   author: message.text == "KP" ? _user2 : _user,
+    //   createdAt: DateTime.now().millisecondsSinceEpoch,
+    //   id: getRandString(10),
+    //   text: message.text,
+    // );
+    firebaseApi.sendMessage(
+        MessageVO(
+            id: DateTime.now().millisecondsSinceEpoch.toString(),
+            text: message.text,
+            file: "",
+            senderName: "KP",
+            senderId: currentUser.id,
+            type: "text"),
+        currentUser.id,
+        widget.user.id);
+    // _addMessage(textMessage);
   }
 
   String getRandString(int len) {
@@ -56,7 +79,7 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
       final image = await decodeImageFromList(bytes);
 
       final message = types.ImageMessage(
-        author: _user,
+        author: currentMessageSender,
         createdAt: DateTime.now().millisecondsSinceEpoch,
         height: image.height.toDouble(),
         id: getRandString(10),
@@ -70,19 +93,45 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
     }
   }
 
+  final FirebaseApi firebaseApi = FirebaseApiImpl();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: buildDefaultAppBar(widget.user.name, true),
-      body: Chat(
-        theme: const DefaultChatTheme(
-          primaryColor: kPrimaryColor,
-        ),
-        onAttachmentPressed: _handleImageSelection,
-        messages: _messages,
-        onSendPressed: _handleSendPressed,
-        user: _user,
-      ),
+      body: StreamBuilder<List<MessageVO>>(
+          stream: firebaseApi.getMessageStream(currentUser.id, widget.user.id),
+          builder: (context, snapshot) {
+            print(snapshot.data.toString());
+            if (snapshot.hasData &&
+                snapshot.connectionState == ConnectionState.active &&
+                snapshot.data != null) {
+              print(snapshot.data?.length ?? "");
+              List<types.Message> newMessages = snapshot.data!
+                  .map((messageVo) => types.TextMessage(
+                      id: messageVo.id ?? "",
+                      text: messageVo.text ?? "",
+                      author: types.User(id: messageVo.senderId ?? ""),
+                      createdAt: int.parse(messageVo.id ?? "")))
+                  .toList();
+              newMessages.sort((b, a) => a.id.compareTo(b.id));
+              return Chat(
+                timeFormat: DateFormat('yyyy-MM-dd hh:mm a'),
+                dateFormat: DateFormat('yyyy-MM-dd hh:mm a'),
+                theme: const DefaultChatTheme(
+                  primaryColor: kPrimaryColor,
+                ),
+                onAttachmentPressed: _handleImageSelection,
+                messages: newMessages,
+                onSendPressed: _handleSendPressed,
+                user: currentMessageSender,
+              );
+            } else {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
+          }),
     );
   }
 }
