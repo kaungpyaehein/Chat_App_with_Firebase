@@ -29,4 +29,8 @@ abstract class FirebaseApi {
 
   Stream<List<MessageVO>> getMessageStream(
       String senderUid, String receiverUid);
+
+  Stream<List<String>> getChatIdStream(String currentUserId);
+
+  Future<MessageVO?> getLastMessageByChatId(String chatId, String currentUserId);
 }

@@ -5,6 +5,7 @@ import 'package:chat_app/data/vos/message_vo.dart';
 import 'package:chat_app/data/vos/user_vo.dart';
 import 'package:chat_app/network/api/firebase_api.dart';
 import 'package:chat_app/network/api_constants.dart';
+import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -162,22 +163,22 @@ class FirebaseApiImpl implements FirebaseApi {
 
   @override
   Stream<List<MessageVO>> getMessageStream(
-      String senderUid, String receiverUid) {
+    String senderUid,
+    String receiverUid,
+  ) {
+    /// GET MESSAGE Snapshots
     return databaseReference
         .child("chats/$senderUid/$receiverUid")
         .onValue
         .map((event) {
       DataSnapshot dataSnapshot = event.snapshot;
-      print("Data received: ${dataSnapshot.value}");
       var values = dataSnapshot.value as Map<dynamic, dynamic>?;
 
       List<MessageVO> messages = [];
-      print("messages${messages.toString()}");
 
+      /// Type cast each snapshot to a MessageVO
       if (values != null) {
         values.forEach((key, value) {
-          // Assuming value is the JSON object representing a message
-          // Use the key as the id
           messages.add(MessageVO.fromJson({
             ...value,
             'id': key,
@@ -185,8 +186,64 @@ class FirebaseApiImpl implements FirebaseApi {
         });
       }
 
-      print("messages${messages.toString()}");
       return messages;
+    });
+  }
+
+  @override
+  Stream<List<String>> getChatIdStream(String currentUserId) {
+    /// GET MESSAGE Snapshots
+    return databaseReference.child("chats/$currentUserId").onValue.map((event) {
+      DataSnapshot dataSnapshot = event.snapshot;
+      var values = dataSnapshot.value as Map<dynamic, dynamic>?;
+
+      List<String> keyList = [];
+
+      /// Type cast each snapshot to  key list
+      if (values != null) {
+        values.forEach((key, value) {
+          keyList.add(key.toString());
+        });
+      }
+      print(keyList.toString());
+
+      return keyList;
+    });
+  }
+
+  @override
+  Future<MessageVO?> getLastMessageByChatId(
+      String chatId, String currentUserId) {
+    return databaseReference
+        .child("chats/$currentUserId/$chatId")
+        .orderByChild("id")
+        .limitToLast(1)
+        .once()
+        .then((event) {
+      if (event.snapshot.exists) {
+        try {
+          // Print out the JSON string for inspection
+          print("JSON string: ${event.snapshot.value.toString()}");
+
+          Map<String, dynamic> jsonString =
+              json.decode(jsonEncode(event.snapshot.value).toString());
+
+          MapEntry<String, dynamic> messageDate = jsonString.entries.first;
+
+          return MessageVO.fromJson(messageDate.value);
+          // Convert JSON string to a map
+        } catch (error) {
+          print("Error parsing JSON: $error");
+          return null;
+        }
+      } else {
+        print("Snapshot does not exist");
+        return null; // No messages found
+      }
+    }).catchError((error) {
+      // Handle database query errors
+      print("Error querying database: $error");
+      return null;
     });
   }
 }

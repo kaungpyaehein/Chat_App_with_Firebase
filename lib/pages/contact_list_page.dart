@@ -1,7 +1,5 @@
 import 'package:chat_app/bloc/user_info_bloc.dart';
 import 'package:chat_app/data/vos/user_vo.dart';
-import 'package:chat_app/network/api/firebase_api.dart';
-import 'package:chat_app/network/api/firebase_api_impl.dart';
 import 'package:chat_app/pages/chat_details_page.dart';
 import 'package:chat_app/utils/route/route_extensions.dart';
 import 'package:flutter/material.dart';

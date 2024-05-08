@@ -18,4 +18,6 @@ abstract class ChatAppDataAgent {
   );
 
   Future<UserVO> getUserDataAndContactsFromFirestore(String uid);
+
+
 }
