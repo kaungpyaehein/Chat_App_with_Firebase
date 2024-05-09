@@ -11,7 +11,6 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
 
 import '../data/vos/user_vo.dart';
 
@@ -29,31 +28,22 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
   @override
   void initState() {
     currentUser = model.getUserDataFromDatabase()!;
-    currentMessageSender = types.User(id: currentUser.id ?? "");
+    currentMessageSender = types.User(
+      id: currentUser.id,
+      firstName: currentUser.name,
+    );
     super.initState();
   }
 
   final List<types.Message> _messages = [];
 
-  void _addMessage(types.Message message) {
-    setState(() {
-      _messages.insert(0, message);
-    });
-  }
-
   void _handleSendPressed(types.PartialText message) {
-    // final textMessage = types.TextMessage(
-    //   author: message.text == "KP" ? _user2 : _user,
-    //   createdAt: DateTime.now().millisecondsSinceEpoch,
-    //   id: getRandString(10),
-    //   text: message.text,
-    // );
     firebaseApi.sendMessage(
         MessageVO(
             id: DateTime.now().millisecondsSinceEpoch.toString(),
             text: message.text,
             file: "",
-            senderName: "KP",
+            senderName: currentUser.name,
             senderId: currentUser.id,
             type: "text"),
         currentUser.id,
@@ -88,8 +78,6 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
         uri: result.path,
         width: image.width.toDouble(),
       );
-
-      _addMessage(message);
     }
   }
 
@@ -100,37 +88,52 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
     return Scaffold(
       appBar: buildDefaultAppBar(widget.user.name, true),
       body: StreamBuilder<List<MessageVO>>(
+          initialData: [],
           stream: firebaseApi.getMessageStream(currentUser.id, widget.user.id),
           builder: (context, snapshot) {
-            print(snapshot.data.toString());
             if (snapshot.hasData &&
                 snapshot.connectionState == ConnectionState.active &&
                 snapshot.data != null) {
-              print(snapshot.data?.length ?? "");
               List<types.Message> newMessages = snapshot.data!
-                  .map((messageVo) => types.TextMessage(
+                  .map(
+                    (messageVo) => types.TextMessage(
                       id: messageVo.id ?? "",
                       text: messageVo.text ?? "",
-                      author: types.User(id: messageVo.senderId ?? ""),
-                      createdAt: int.parse(messageVo.id ?? "")))
+                      author: types.User(
+                          id: messageVo.senderId ?? "",
+                          firstName: messageVo.senderName),
+                      createdAt: int.parse(messageVo.id ?? ""),
+                    ),
+                  )
                   .toList();
+
+              /// SORT WITH TIME
               newMessages.sort((b, a) => a.id.compareTo(b.id));
               return Chat(
-                timeFormat: DateFormat('yyyy-MM-dd hh:mm a'),
-                dateFormat: DateFormat('yyyy-MM-dd hh:mm a'),
+                scrollPhysics: const BouncingScrollPhysics(),
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
+                // timeFormat: DateFormat('yyyy-MM-dd hh:mm a'),
+                // dateFormat: DateFormat('yyyy-MM-dd hh:mm a'),
                 theme: const DefaultChatTheme(
                   primaryColor: kPrimaryColor,
                 ),
+                showUserNames: true,
                 onAttachmentPressed: _handleImageSelection,
                 messages: newMessages,
                 onSendPressed: _handleSendPressed,
                 user: currentMessageSender,
               );
-            } else {
+            } else if (snapshot.connectionState == ConnectionState.done &&
+                (snapshot.data?.isEmpty ?? false)) {
               return const Center(
-                child: CircularProgressIndicator(),
+                child: Text(
+                  "No active chats. Start chatting now",
+                  style: TextStyle(color: Colors.black),
+                ),
               );
             }
+            return const Center(child: CircularProgressIndicator());
           }),
     );
   }

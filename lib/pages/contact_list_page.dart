@@ -42,7 +42,8 @@ class _ContactListViewState extends State<ContactListView> {
     return Selector<UserInfoBloc, UserVO?>(
       selector: (context, bloc) => bloc.currentUser,
       builder: (context, currentUser, widget) {
-        if (currentUser != null && currentUser.contacts!.isNotEmpty) {
+        if (currentUser != null &&
+            (currentUser.contacts?.isNotEmpty ?? false)) {
           return ListView.separated(
             padding: const EdgeInsets.symmetric(horizontal: kMarginLarge),
             separatorBuilder: (context, index) {
@@ -58,7 +59,15 @@ class _ContactListViewState extends State<ContactListView> {
             },
           );
         } else if (currentUser!.contacts!.isEmpty) {
-          return const Center(child: CircularProgressIndicator());
+          return const Center(
+            child: Text(
+              "Empty Contact List.",
+              style: TextStyle(
+                  color: kDefaultBlackColor,
+                  fontSize: kTextRegular3X,
+                  fontWeight: FontWeight.w700),
+            ),
+          );
         }
         return const Center(
           child: Text(

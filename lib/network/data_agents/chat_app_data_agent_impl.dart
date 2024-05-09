@@ -1,3 +1,5 @@
+import 'package:chat_app/data/vos/chat_vo.dart';
+import 'package:chat_app/data/vos/message_vo.dart';
 import 'package:chat_app/data/vos/user_vo.dart';
 import 'package:chat_app/network/api/firebase_api.dart';
 import 'package:chat_app/network/api/firebase_api_impl.dart';
@@ -89,40 +91,58 @@ class ChatAppDataAgentImpl implements ChatAppDataAgent {
       throw _createException(error);
     });
   }
-}
 
-CustomException _createException(dynamic error) {
-  ErrorVO errorVO;
-  if (error is FirebaseAuthException) {
-    errorVO = _parseFirebaseAuthException(error);
-  } else {
-    errorVO = ErrorVO(
-        statusCode: 0, statusMessage: "Unexpected Error", success: false);
-  }
-  return CustomException(errorVO);
-}
-
-ErrorVO _parseFirebaseAuthException(FirebaseAuthException error) {
-  try {
-    if (error.message != null) {
-      // You can customize the error message here if needed
-      return ErrorVO(
-        statusCode: 0,
-        statusMessage: error.message!,
-        success: false,
-      );
+  CustomException _createException(dynamic error) {
+    ErrorVO errorVO;
+    if (error is FirebaseAuthException) {
+      errorVO = _parseFirebaseAuthException(error);
     } else {
+      errorVO = ErrorVO(
+          statusCode: 0, statusMessage: "Unexpected Error", success: false);
+    }
+    return CustomException(errorVO);
+  }
+
+  ErrorVO _parseFirebaseAuthException(FirebaseAuthException error) {
+    try {
+      if (error.message != null) {
+        // You can customize the error message here if needed
+        return ErrorVO(
+          statusCode: 0,
+          statusMessage: error.message!,
+          success: false,
+        );
+      } else {
+        return ErrorVO(
+          statusCode: 0,
+          statusMessage: "No response data",
+          success: false,
+        );
+      }
+    } catch (e) {
       return ErrorVO(
         statusCode: 0,
-        statusMessage: "No response data",
+        statusMessage: "Invalid FirebaseAuthException Format: $e",
         success: false,
       );
     }
-  } catch (e) {
-    return ErrorVO(
-      statusCode: 0,
-      statusMessage: "Invalid FirebaseAuthException Format: $e",
-      success: false,
-    );
+  }
+
+  @override
+  Future<List<UserVO>> getChatListById(String currentUserId) {
+    return firebaseApi.getChatIdList(currentUserId).then((chatIds) {
+      return firebaseApi.getChatByIds(currentUserId, chatIds);
+    }).catchError((error) {
+      throw _createException(error);
+    });
+  }
+
+  @override
+  Future<MessageVO?> getLastMessageByIds(String chatId, String currentUserId) {
+    return firebaseApi
+        .getLastMessageByChatId(chatId, currentUserId)
+        .catchError((error) {
+      throw _createException(error);
+    });
   }
 }

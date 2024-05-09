@@ -1,11 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:chat_app/data/vos/message_vo.dart';
 import 'package:chat_app/data/vos/user_vo.dart';
 import 'package:chat_app/network/api/firebase_api.dart';
 import 'package:chat_app/network/api_constants.dart';
-import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -107,7 +105,6 @@ class FirebaseApiImpl implements FirebaseApi {
             snapshots[0].data() as Map<String, dynamic>;
         Map<String, dynamic> receiverData =
             snapshots[1].data() as Map<String, dynamic>;
-
         // Execute set operations concurrently
         await Future.wait([
           firestoreDb
@@ -129,9 +126,7 @@ class FirebaseApiImpl implements FirebaseApi {
       }
       return false;
     } catch (error) {
-      // Handle any errors
-      print("Error adding contact: $error");
-      return false;
+      rethrow;
     }
   }
 
@@ -191,9 +186,13 @@ class FirebaseApiImpl implements FirebaseApi {
   }
 
   @override
-  Stream<List<String>> getChatIdStream(String currentUserId) {
+  Future<List<String>> getChatIdList(String currentUserId) {
     /// GET MESSAGE Snapshots
-    return databaseReference.child("chats/$currentUserId").onValue.map((event) {
+    return databaseReference
+        .child("chats/$currentUserId")
+        .once()
+        .asStream()
+        .map((event) {
       DataSnapshot dataSnapshot = event.snapshot;
       var values = dataSnapshot.value as Map<dynamic, dynamic>?;
 
@@ -205,10 +204,9 @@ class FirebaseApiImpl implements FirebaseApi {
           keyList.add(key.toString());
         });
       }
-      print(keyList.toString());
 
       return keyList;
-    });
+    }).first;
   }
 
   @override
@@ -221,29 +219,37 @@ class FirebaseApiImpl implements FirebaseApi {
         .once()
         .then((event) {
       if (event.snapshot.exists) {
-        try {
-          // Print out the JSON string for inspection
-          print("JSON string: ${event.snapshot.value.toString()}");
+        /// CONVERT SNAPSHOT TO JSON
+        Map<String, dynamic> jsonString =
+            json.decode(jsonEncode(event.snapshot.value).toString());
 
-          Map<String, dynamic> jsonString =
-              json.decode(jsonEncode(event.snapshot.value).toString());
+        //// CONVERT Json TO MAP ENTRY
+        MapEntry<String, dynamic> messageDate = jsonString.entries.first;
 
-          MapEntry<String, dynamic> messageDate = jsonString.entries.first;
-
-          return MessageVO.fromJson(messageDate.value);
-          // Convert JSON string to a map
-        } catch (error) {
-          print("Error parsing JSON: $error");
-          return null;
-        }
+        return MessageVO.fromJson(messageDate.value);
       } else {
-        print("Snapshot does not exist");
         return null; // No messages found
       }
     }).catchError((error) {
-      // Handle database query errors
-      print("Error querying database: $error");
       return null;
+    });
+  }
+
+  @override
+  Future<List<UserVO>> getChatByIds(
+      String currentUserId, List<String> chatListId) {
+    return FirebaseFirestore.instance
+        .collection(kUserCollection)
+        .doc(currentUserId)
+        .collection(kContactsCollection)
+        .snapshots()
+        .map((querySnapshot) => querySnapshot.docs
+            .map((doc) => UserVO.fromJson(doc.data()))
+            .where((userVO) => chatListId.contains(userVO.id))
+            .toList())
+        .first
+        .catchError((error) {
+      throw error;
     });
   }
 }

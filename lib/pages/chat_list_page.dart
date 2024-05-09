@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:chat_app/data/models/chat_app_model.dart';
 import 'package:chat_app/data/vos/message_vo.dart';
 import 'package:chat_app/network/api/firebase_api.dart';
@@ -10,9 +8,7 @@ import 'package:chat_app/utils/dimensions.dart';
 import 'package:chat_app/utils/route/route_extensions.dart';
 import 'package:chat_app/utils/strings.dart';
 import 'package:chat_app/utils/utils_functions.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 import '../data/vos/user_vo.dart';
 
@@ -46,9 +42,6 @@ class _ChatListViewState extends State<ChatListView> {
   ChatAppModel model = ChatAppModel();
   @override
   void initState() {
-    firebaseApi.getContactsStream(model.getUserDataFromDatabase()!.id);
-    firebaseApi.getChatIdStream(model.getUserDataFromDatabase()?.id ?? "");
-
     super.initState();
   }
 
@@ -56,32 +49,24 @@ class _ChatListViewState extends State<ChatListView> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: kMarginLarge),
-      child: StreamBuilder<List<String>>(
-          stream: firebaseApi
-              .getChatIdStream(model.getUserDataFromDatabase()?.id ?? ""),
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              final List<String> chatIdList = snapshot.data!;
-              return StreamBuilder<List<UserVO>>(
-                  stream: firebaseApi
-                      .getContactsStream(model.getUserDataFromDatabase()!.id),
-                  builder: (context, userSnapshot) {
-                    if (userSnapshot.hasData) {
-                      List<UserVO> users = userSnapshot.data!;
-                      users.map((user) => chatIdList.contains(user.id));
-                      return ListView.builder(
-                        itemCount: users.length,
-                        itemBuilder: (context, index) {
-                          return ChatListItemView(
-                            chatUser: users[index],
-                          );
-                        },
-                      );
-                    }
-                    return const SizedBox();
-                  });
+      child: FutureBuilder<List<UserVO>>(
+          future: model.getChatContacts(),
+          builder: (context, userSnapshot) {
+            if (userSnapshot.hasData) {
+              List<UserVO> users = userSnapshot.data!;
+
+              return ListView.builder(
+                itemCount: users.length,
+                itemBuilder: (context, index) {
+                  return ChatListItemView(
+                    chatUser: users[index],
+                  );
+                },
+              );
             }
-            return const SizedBox();
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
           }),
     );
   }
@@ -111,10 +96,7 @@ class _ChatListItemViewState extends State<ChatListItemView> {
           if (snapshot.hasData &&
               snapshot.connectionState != ConnectionState.waiting) {
             final MessageVO lastMessage = snapshot.data!;
-            print(lastMessage.text.toString());
-            print(lastMessage.id.toString());
 
-            print(snapshot.data.toString());
             return ListTile(
               onTap: () {
                 context.push(ChatDetailsPage(
@@ -167,17 +149,17 @@ class _ChatListItemViewState extends State<ChatListItemView> {
               ),
               subtitle: Text(
                 lastMessage.text ?? "",
-                style: TextStyle(color: kHintTextColor),
+                style: const TextStyle(color: kHintTextColor),
               ),
               trailing: Text(
-                DateFormat("yy MM HH").format(
-                    DateTime.fromMillisecondsSinceEpoch(
-                        int.parse(lastMessage.id ?? "0"))),
-                style: TextStyle(color: kHintTextColor),
+                lastMessage.getLastMessageTime(),
+                style: const TextStyle(color: kHintTextColor),
               ),
             );
           }
-          return SizedBox();
+          return const Center(
+            child: Text("No Active Chat"),
+          );
         });
   }
 }

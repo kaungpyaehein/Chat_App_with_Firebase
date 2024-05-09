@@ -6,6 +6,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 
+import '../vos/message_vo.dart';
+
 class ChatAppModel {
   static ChatAppModel? _singleton;
 
@@ -56,5 +58,17 @@ class ChatAppModel {
     } catch (e) {
       print(e.toString()); // TODO: show dialog with error
     }
+  }
+
+  Future<List<UserVO>> getChatContacts() {
+    return chatAppDataAgent
+        .getChatListById(getUserDataFromDatabase()?.id ?? "");
+  }
+
+  Future<MessageVO?> getLastMessage(
+    String chatUserId,
+  ) {
+    return chatAppDataAgent.getLastMessageByIds(
+        chatUserId, getUserDataFromDatabase()?.id ?? "");
   }
 }

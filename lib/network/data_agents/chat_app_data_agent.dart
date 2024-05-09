@@ -1,3 +1,6 @@
+import 'package:chat_app/data/vos/chat_vo.dart';
+
+import '../../data/vos/message_vo.dart';
 import '../../data/vos/user_vo.dart';
 
 abstract class ChatAppDataAgent {
@@ -19,5 +22,7 @@ abstract class ChatAppDataAgent {
 
   Future<UserVO> getUserDataAndContactsFromFirestore(String uid);
 
+  Future<List<UserVO>> getChatListById(String currentUserId);
 
+  Future<MessageVO?> getLastMessageByIds(String chatId, String currentUserId);
 }

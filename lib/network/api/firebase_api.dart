@@ -1,3 +1,4 @@
+import '../../data/vos/chat_vo.dart';
 import '../../data/vos/message_vo.dart';
 import '../../data/vos/user_vo.dart';
 
@@ -30,7 +31,10 @@ abstract class FirebaseApi {
   Stream<List<MessageVO>> getMessageStream(
       String senderUid, String receiverUid);
 
-  Stream<List<String>> getChatIdStream(String currentUserId);
+  Future<List<String>> getChatIdList(String currentUserId);
 
-  Future<MessageVO?> getLastMessageByChatId(String chatId, String currentUserId);
+  Future<MessageVO?> getLastMessageByChatId(
+      String chatId, String currentUserId);
+
+  Future<List<UserVO>> getChatByIds(String currentUserId, List<String> chatListId);
 }
