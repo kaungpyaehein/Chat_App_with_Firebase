@@ -188,11 +188,7 @@ class FirebaseApiImpl implements FirebaseApi {
   @override
   Future<List<String>> getChatIdList(String currentUserId) {
     /// GET MESSAGE Snapshots
-    return databaseReference
-        .child("chats/$currentUserId")
-        .once()
-        .asStream()
-        .map((event) {
+    return databaseReference.child("chats/$currentUserId").onValue.map((event) {
       DataSnapshot dataSnapshot = event.snapshot;
       var values = dataSnapshot.value as Map<dynamic, dynamic>?;
 
@@ -210,14 +206,14 @@ class FirebaseApiImpl implements FirebaseApi {
   }
 
   @override
-  Future<MessageVO?> getLastMessageByChatId(
+  Stream<MessageVO?> getLastMessageByChatId(
       String chatId, String currentUserId) {
     return databaseReference
         .child("chats/$currentUserId/$chatId")
         .orderByChild("id")
         .limitToLast(1)
-        .once()
-        .then((event) {
+        .onValue
+        .map((event) {
       if (event.snapshot.exists) {
         /// CONVERT SNAPSHOT TO JSON
         Map<String, dynamic> jsonString =
@@ -230,7 +226,7 @@ class FirebaseApiImpl implements FirebaseApi {
       } else {
         return null; // No messages found
       }
-    }).catchError((error) {
+    }).handleError((error) {
       return null;
     });
   }

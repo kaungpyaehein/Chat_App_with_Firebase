@@ -33,7 +33,7 @@ abstract class FirebaseApi {
 
   Future<List<String>> getChatIdList(String currentUserId);
 
-  Future<MessageVO?> getLastMessageByChatId(
+  Stream<MessageVO?> getLastMessageByChatId(
       String chatId, String currentUserId);
 
   Future<List<UserVO>> getChatByIds(String currentUserId, List<String> chatListId);

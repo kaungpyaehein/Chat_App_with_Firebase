@@ -24,5 +24,8 @@ abstract class ChatAppDataAgent {
 
   Future<List<UserVO>> getChatListById(String currentUserId);
 
-  Future<MessageVO?> getLastMessageByIds(String chatId, String currentUserId);
+  Stream<MessageVO?> getLastMessageByIds(String chatId, String currentUserId);
+
+  Stream<List<MessageVO>> getMessageStream(
+      String senderUid, String receiverUid);
 }

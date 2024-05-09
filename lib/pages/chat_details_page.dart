@@ -1,5 +1,5 @@
+import 'package:chat_app/bloc/chat_details_bloc.dart';
 import 'package:chat_app/data/models/chat_app_model.dart';
-import 'package:chat_app/data/vos/message_vo.dart';
 import 'package:chat_app/network/api/firebase_api.dart';
 import 'package:chat_app/network/api/firebase_api_impl.dart';
 import 'package:chat_app/utils/colors.dart';
@@ -11,6 +11,7 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 
 import '../data/vos/user_vo.dart';
 
@@ -36,20 +37,6 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
   }
 
   final List<types.Message> _messages = [];
-
-  void _handleSendPressed(types.PartialText message) {
-    firebaseApi.sendMessage(
-        MessageVO(
-            id: DateTime.now().millisecondsSinceEpoch.toString(),
-            text: message.text,
-            file: "",
-            senderName: currentUser.name,
-            senderId: currentUser.id,
-            type: "text"),
-        currentUser.id,
-        widget.user.id);
-    // _addMessage(textMessage);
-  }
 
   String getRandString(int len) {
     var random = Random.secure();
@@ -85,56 +72,29 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: buildDefaultAppBar(widget.user.name, true),
-      body: StreamBuilder<List<MessageVO>>(
-          initialData: [],
-          stream: firebaseApi.getMessageStream(currentUser.id, widget.user.id),
-          builder: (context, snapshot) {
-            if (snapshot.hasData &&
-                snapshot.connectionState == ConnectionState.active &&
-                snapshot.data != null) {
-              List<types.Message> newMessages = snapshot.data!
-                  .map(
-                    (messageVo) => types.TextMessage(
-                      id: messageVo.id ?? "",
-                      text: messageVo.text ?? "",
-                      author: types.User(
-                          id: messageVo.senderId ?? "",
-                          firstName: messageVo.senderName),
-                      createdAt: int.parse(messageVo.id ?? ""),
-                    ),
-                  )
-                  .toList();
-
-              /// SORT WITH TIME
-              newMessages.sort((b, a) => a.id.compareTo(b.id));
-              return Chat(
-                scrollPhysics: const BouncingScrollPhysics(),
-                keyboardDismissBehavior:
-                    ScrollViewKeyboardDismissBehavior.onDrag,
-                // timeFormat: DateFormat('yyyy-MM-dd hh:mm a'),
-                // dateFormat: DateFormat('yyyy-MM-dd hh:mm a'),
-                theme: const DefaultChatTheme(
-                  primaryColor: kPrimaryColor,
-                ),
-                showUserNames: true,
-                onAttachmentPressed: _handleImageSelection,
-                messages: newMessages,
-                onSendPressed: _handleSendPressed,
-                user: currentMessageSender,
-              );
-            } else if (snapshot.connectionState == ConnectionState.done &&
-                (snapshot.data?.isEmpty ?? false)) {
-              return const Center(
-                child: Text(
-                  "No active chats. Start chatting now",
-                  style: TextStyle(color: Colors.black),
-                ),
-              );
-            }
-            return const Center(child: CircularProgressIndicator());
-          }),
+    return ChangeNotifierProvider(
+      create: (context) => ChatDetailsBloc(widget.user.id),
+      child: Scaffold(
+        appBar: buildDefaultAppBar(widget.user.name, true),
+        body: Selector<ChatDetailsBloc, List<types.Message>>(
+          selector: (context, bloc) => bloc.messages,
+          builder: (context, messages, child) {
+            final ChatDetailsBloc bloc = context.read<ChatDetailsBloc>();
+            return Chat(
+              scrollPhysics: const BouncingScrollPhysics(),
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              theme: const DefaultChatTheme(
+                primaryColor: kPrimaryColor,
+              ),
+              showUserNames: true,
+              onAttachmentPressed: _handleImageSelection,
+              messages: messages,
+              onSendPressed: bloc.handleSendPressed,
+              user: bloc.currentMessageSender,
+            );
+          },
+        ),
+      ),
     );
   }
 }

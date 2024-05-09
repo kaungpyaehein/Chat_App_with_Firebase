@@ -61,14 +61,20 @@ class ChatAppModel {
   }
 
   Future<List<UserVO>> getChatContacts() {
+    print(getUserDataFromDatabase()!.id);
     return chatAppDataAgent
         .getChatListById(getUserDataFromDatabase()?.id ?? "");
   }
 
-  Future<MessageVO?> getLastMessage(
+  Stream<MessageVO?> getLastMessage(
     String chatUserId,
   ) {
     return chatAppDataAgent.getLastMessageByIds(
         chatUserId, getUserDataFromDatabase()?.id ?? "");
+  }
+
+  Stream<List<MessageVO>> getMessageStream(String receiverUid) {
+    return chatAppDataAgent.getMessageStream(
+        getUserDataFromDatabase()?.id ?? "", receiverUid);
   }
 }

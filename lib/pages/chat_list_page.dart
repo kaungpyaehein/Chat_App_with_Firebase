@@ -1,3 +1,4 @@
+import 'package:chat_app/bloc/chat_list_bloc.dart';
 import 'package:chat_app/data/models/chat_app_model.dart';
 import 'package:chat_app/data/vos/message_vo.dart';
 import 'package:chat_app/network/api/firebase_api.dart';
@@ -9,6 +10,7 @@ import 'package:chat_app/utils/route/route_extensions.dart';
 import 'package:chat_app/utils/strings.dart';
 import 'package:chat_app/utils/utils_functions.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../data/vos/user_vo.dart';
 
@@ -22,9 +24,12 @@ class ChatListPage extends StatefulWidget {
 class _ChatListPageState extends State<ChatListPage> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: buildDefaultAppBar(kTextChats, false),
-        body: const ChatListView());
+    return ChangeNotifierProvider(
+      create: (context) => ChatListBloc(),
+      child: Scaffold(
+          appBar: buildDefaultAppBar(kTextChats, false),
+          body: const ChatListView()),
+    );
   }
 }
 
@@ -49,23 +54,28 @@ class _ChatListViewState extends State<ChatListView> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: kMarginLarge),
-      child: FutureBuilder<List<UserVO>>(
-          future: model.getChatContacts(),
-          builder: (context, userSnapshot) {
-            if (userSnapshot.hasData) {
-              List<UserVO> users = userSnapshot.data!;
-
+      child: Selector<ChatListBloc, List<UserVO>>(
+          selector: (context, bloc) => bloc.chatListUsers,
+          builder: (context, chatListUsers, widget) {
+            print(chatListUsers.toString());
+            if (chatListUsers.isNotEmpty) {
               return ListView.builder(
-                itemCount: users.length,
+                itemCount: chatListUsers.length,
                 itemBuilder: (context, index) {
                   return ChatListItemView(
-                    chatUser: users[index],
+                    chatUser: chatListUsers[index],
                   );
                 },
               );
             }
             return const Center(
-              child: CircularProgressIndicator(),
+              child: Text(
+                "Empty Chat List.",
+                style: TextStyle(
+                    color: kDefaultBlackColor,
+                    fontSize: kTextRegular3X,
+                    fontWeight: FontWeight.w700),
+              ),
             );
           }),
     );
@@ -89,8 +99,8 @@ class _ChatListItemViewState extends State<ChatListItemView> {
   ChatAppModel model = ChatAppModel();
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<MessageVO?>(
-        future: firebaseApi.getLastMessageByChatId(
+    return StreamBuilder<MessageVO?>(
+        stream: firebaseApi.getLastMessageByChatId(
             widget.chatUser.id, model.getUserDataFromDatabase()?.id ?? ""),
         builder: (context, snapshot) {
           if (snapshot.hasData &&
@@ -158,7 +168,13 @@ class _ChatListItemViewState extends State<ChatListItemView> {
             );
           }
           return const Center(
-            child: Text("No Active Chat"),
+            child: Text(
+              "Empty Chat List.",
+              style: TextStyle(
+                  color: kDefaultBlackColor,
+                  fontSize: kTextRegular3X,
+                  fontWeight: FontWeight.w700),
+            ),
           );
         });
   }

@@ -131,17 +131,29 @@ class ChatAppDataAgentImpl implements ChatAppDataAgent {
   @override
   Future<List<UserVO>> getChatListById(String currentUserId) {
     return firebaseApi.getChatIdList(currentUserId).then((chatIds) {
+      print(chatIds.toString());
       return firebaseApi.getChatByIds(currentUserId, chatIds);
     }).catchError((error) {
+      print(error.toString());
       throw _createException(error);
     });
   }
 
   @override
-  Future<MessageVO?> getLastMessageByIds(String chatId, String currentUserId) {
+  Stream<MessageVO?> getLastMessageByIds(String chatId, String currentUserId) {
     return firebaseApi
         .getLastMessageByChatId(chatId, currentUserId)
-        .catchError((error) {
+        .handleError((error) {
+      throw _createException(error);
+    });
+  }
+
+  @override
+  Stream<List<MessageVO>> getMessageStream(
+      String senderUid, String receiverUid) {
+    return firebaseApi
+        .getMessageStream(senderUid, receiverUid)
+        .handleError((error) {
       throw _createException(error);
     });
   }
