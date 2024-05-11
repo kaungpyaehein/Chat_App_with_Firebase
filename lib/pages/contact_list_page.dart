@@ -1,5 +1,6 @@
 import 'package:chat_app/bloc/user_info_bloc.dart';
 import 'package:chat_app/data/vos/user_vo.dart';
+import 'package:chat_app/pages/chat_details.dart';
 import 'package:chat_app/pages/chat_details_page.dart';
 import 'package:chat_app/utils/route/route_extensions.dart';
 import 'package:flutter/material.dart';
@@ -92,8 +93,8 @@ class ContactListItemView extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       onTap: () {
-        context.push(ChatDetailsPage(
-          user: user,
+        context.push(ChatDetails(
+          userToChat: user,
         ));
       },
       contentPadding: EdgeInsets.zero,
