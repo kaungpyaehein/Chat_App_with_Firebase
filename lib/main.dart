@@ -1,4 +1,5 @@
 import 'package:chat_app/data/models/chat_app_model.dart';
+import 'package:chat_app/data/vos/message_vo.dart';
 import 'package:chat_app/pages/auth_page.dart';
 import 'package:chat_app/pages/main_page.dart';
 import 'package:chat_app/pages/splash_page.dart';
@@ -19,9 +20,11 @@ void main() async {
 
   /// REGISTER ADAPTER
   Hive.registerAdapter(UserVOAdapter());
+  Hive.registerAdapter(MessageVOAdapter());
 
   /// OPEN BOX
   await Hive.openBox<UserVO>(kBoxNameUserVO);
+  await Hive.openBox<UserVO>(kBoxNameMessageVO);
 
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,

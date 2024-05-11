@@ -23,53 +23,6 @@ class ChatDetailsPage extends StatefulWidget {
 }
 
 class _ChatDetailsPageState extends State<ChatDetailsPage> {
-  ChatAppModel model = ChatAppModel();
-  late UserVO currentUser;
-  late types.User currentMessageSender;
-  @override
-  void initState() {
-    currentUser = model.getUserDataFromDatabase()!;
-    currentMessageSender = types.User(
-      id: currentUser.id,
-      firstName: currentUser.name,
-    );
-    super.initState();
-  }
-
-  final List<types.Message> _messages = [];
-
-  String getRandString(int len) {
-    var random = Random.secure();
-    var values = List<int>.generate(len, (i) => random.nextInt(255));
-    return base64UrlEncode(values);
-  }
-
-  void _handleImageSelection() async {
-    final result = await ImagePicker().pickImage(
-      imageQuality: 70,
-      maxWidth: 1440,
-      source: ImageSource.gallery,
-    );
-
-    if (result != null) {
-      final bytes = await result.readAsBytes();
-      final image = await decodeImageFromList(bytes);
-
-      final message = types.ImageMessage(
-        author: currentMessageSender,
-        createdAt: DateTime.now().millisecondsSinceEpoch,
-        height: image.height.toDouble(),
-        id: getRandString(10),
-        name: result.name,
-        size: bytes.length,
-        uri: result.path,
-        width: image.width.toDouble(),
-      );
-    }
-  }
-
-  final FirebaseApi firebaseApi = FirebaseApiImpl();
-
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
@@ -81,13 +34,13 @@ class _ChatDetailsPageState extends State<ChatDetailsPage> {
           builder: (context, messages, child) {
             final ChatDetailsBloc bloc = context.read<ChatDetailsBloc>();
             return Chat(
-              scrollPhysics: const BouncingScrollPhysics(),
-              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              useTopSafeAreaInset: true,
               theme: const DefaultChatTheme(
                 primaryColor: kPrimaryColor,
               ),
               showUserNames: true,
-              onAttachmentPressed: _handleImageSelection,
+              // isAttachmentUploading: messages.isNotEmpty,
+              onAttachmentPressed: bloc.handleImageSelection,
               messages: messages,
               onSendPressed: bloc.handleSendPressed,
               user: bloc.currentMessageSender,

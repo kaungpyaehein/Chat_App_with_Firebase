@@ -1,26 +1,35 @@
+import 'package:chat_app/persistence/hive_constants.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'message_vo.g.dart';
 
 @JsonSerializable()
+@HiveType(typeId: kHiveTypeMessageVO, adapterName: kAdapterNameMessageVO)
 class MessageVO {
   @JsonKey(name: "id")
+  @HiveType(typeId: 0)
   String? id;
 
   @JsonKey(name: "text")
+  @HiveType(typeId: 1)
   String? text;
 
   @JsonKey(name: "file")
+  @HiveType(typeId: 2)
   String? file;
 
   @JsonKey(name: "type")
+  @HiveType(typeId: 3)
   String? type;
 
   @JsonKey(name: "sender_name")
+  @HiveType(typeId: 4)
   String? senderName;
 
   @JsonKey(name: "sender_id")
+  @HiveType(typeId: 5)
   String? senderId;
 
   //from json

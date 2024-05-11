@@ -3,6 +3,7 @@ import 'package:chat_app/data/models/chat_app_model.dart';
 import 'package:chat_app/data/vos/message_vo.dart';
 import 'package:chat_app/network/api/firebase_api.dart';
 import 'package:chat_app/network/api/firebase_api_impl.dart';
+import 'package:chat_app/pages/chat_details.dart';
 import 'package:chat_app/pages/chat_details_page.dart';
 import 'package:chat_app/utils/colors.dart';
 import 'package:chat_app/utils/dimensions.dart';
@@ -109,8 +110,8 @@ class _ChatListItemViewState extends State<ChatListItemView> {
 
             return ListTile(
               onTap: () {
-                context.push(ChatDetailsPage(
-                  user: widget.chatUser,
+                context.push(ChatDetails(
+                  userToChat: widget.chatUser,
                 ));
               },
               contentPadding: EdgeInsets.zero,
