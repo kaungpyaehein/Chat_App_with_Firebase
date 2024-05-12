@@ -160,6 +160,7 @@ class _ChatListItemViewState extends State<ChatListItemView> {
               ),
               subtitle: Text(
                 lastMessage.text ?? "",
+                maxLines: 2,
                 style: const TextStyle(color: kHintTextColor),
               ),
               trailing: Text(

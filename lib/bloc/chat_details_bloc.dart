@@ -29,7 +29,6 @@ class ChatDetailsBloc extends ChangeNotifier {
       if (messageList.isNotEmpty) {
         messageList.sort((b, a) => a.id!.compareTo(b.id!));
         allMessages = messageList;
-        print(messageList.toString());
         notifyListeners();
       }
     });
@@ -62,7 +61,6 @@ class ChatDetailsBloc extends ChangeNotifier {
       String pickTime = DateTime.now().millisecondsSinceEpoch.toString();
 
       final File file = File(result.path);
-      print(file.toString());
       final storage = FirebaseStorage.instance.ref();
       final chats = storage.child("chats");
       final images = chats.child("images");
@@ -83,7 +81,7 @@ class ChatDetailsBloc extends ChangeNotifier {
           messageReceiverId ?? "",
         );
       } catch (error) {
-        print(error.toString());
+
       }
     }
   }

@@ -47,6 +47,12 @@ class MessageVO {
       this.senderName,
       this.senderId});
 
+  String getFormattedTime() {
+    DateTime lastMessageDateTime =
+        DateTime.fromMillisecondsSinceEpoch(int.parse(id ?? "0"));
+    return DateFormat("hh:mm a").format(lastMessageDateTime);
+  }
+
   String getLastMessageTime() {
     DateTime lastMessageDateTime =
         DateTime.fromMillisecondsSinceEpoch(int.parse(id ?? "0"));
